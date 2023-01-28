@@ -4,9 +4,25 @@ const { Schema, model } = require("mongoose");
 const userSchema = new Schema({
   username: {
     type: String,
-    unique: true
+    unique: true,
+    required : [true, 'Username is required']
   },
-  password: String
+  password: {
+    type: String,
+    required : [true, 'Password is required']
+  }
+});
+
+userSchema.pre('save', function(next) {
+  const rawPassword = this.password;
+    bcrypt.hash(rawPassword, 10)
+      .then(hash => {
+        this.password = hash;
+        next()
+      })
+      .catch(err => next(err))
+
+    next();
 });
 
 const User = model("User", userSchema);
